@@ -45,7 +45,7 @@
             cursor: pointer;
             transition: background 0.2s;
             margin: 10px;
-            width: 85%; /* Garante alinhamento estético com mais botões */
+            width: 85%; 
             max-width: 320px;
         }
 
@@ -82,7 +82,7 @@
             width: 45px;
             height: 45px;
             border-radius: 50%;
-            background-color: #add8e6; /* Azul claro padrão */
+            background-color: #add8e6; 
             color: #2c3e50;
             display: flex;
             flex-direction: column;
@@ -108,15 +108,15 @@
             transform: scale(1.05);
         }
 
-        /* Estados das Bolinhas (Sobrescrevem o Heatmap quando ativas) */
+        /* Estados das Bolinhas */
         .ball.selected {
-            background-color: #0000ff !important; /* Azul vivo (Núcleo) */
+            background-color: #0000ff !important; 
             color: white !important;
             box-shadow: 0 3px 8px rgba(0,0,255,0.3);
         }
 
         .ball.excluded {
-            background-color: #111111 !important; /* Preta (Bloqueada) */
+            background-color: #111111 !important; 
             color: #ffffff !important;
             box-shadow: 0 3px 8px rgba(0,0,0,0.4);
         }
@@ -199,7 +199,7 @@
         <button class="btn" onclick="goToScreen('screen-nucleus', 'manual')">Montar meu núcleo</button>
         <button class="btn" onclick="goToScreen('screen-nucleus', 'passado')">Jogo passado</button>
         <button class="btn" style="background-color: #e67e22;" onclick="goToScreen('screen-nucleus', 'frequencia-20')">Análise de Frequência (20 jogos)</button>
-        <button class="btn" style="background-color: #27ae60;" onclick="goToScreen('screen-nucleus', 'frequencia-3')">Análise de Frequência (3 jogos)</button>
+        <button class="btn" style="background-color: #27ae60;" onclick="goToScreen('screen-nucleus', 'frequencia-7')">Análise de Frequência (7 jogos)</button>
     </div>
 
     <div id="screen-nucleus" class="container hidden">
@@ -235,18 +235,17 @@
         let frequencyMap = {}; 
         let totalJogosAnalisados = 20;
 
-        // Função unificada para definir a cor baseada na quantidade de repetições proporcional ao total de jogos
+        // Função unificada para definir a cor baseada na quantidade de repetições
         function getHeatmapColor(count, total) {
             if (!count || count === 0) return '#add8e6'; // Azul claro (Nenhum)
             
-            const proporcao = count / total;
-
-            if (total === 3) {
-                if (count === 1) return '#f5f5dc'; // Bege (1 jogo)
-                if (count === 2) return '#ff9800'; // Laranja (2 jogos)
-                return '#ff3d00';                  // Vermelho vivo (Todos os 3 jogos)
+            if (total === 7) {
+                if (count <= 2) return '#f5f5dc'; // Bege (1 ou 2 jogos)
+                if (count <= 4) return '#ffcc80'; // Laranja claro (3 ou 4 jogos)
+                if (count <= 6) return '#ff9800'; // Laranja intermediário (5 ou 6 jogos)
+                return '#ff3d00';                  // Vermelho vivo (Todos os 7 jogos)
             } else {
-                // Padrão original para 20 jogos
+                // Padrão para 20 jogos
                 if (count <= 5) return '#f5f5dc';  
                 if (count <= 10) return '#ffcc80'; 
                 if (count <= 14) return '#ff9800'; 
@@ -261,12 +260,13 @@
             
             title.textContent = `Legenda de Frequência (Últimos ${total} Jogos):`;
             
-            if (total === 3) {
+            if (total === 7) {
                 container.innerHTML = `
                     <div class="legend-item" style="background-color: #add8e6;">0x (0%)</div>
-                    <div class="legend-item" style="background-color: #f5f5dc;">1x (33%)</div>
-                    <div class="legend-item" style="background-color: #ff9800; color: white;">2x (66%)</div>
-                    <div class="legend-item" style="background-color: #ff3d00; color: white;">3x (100%)</div>
+                    <div class="legend-item" style="background-color: #f5f5dc;">1-2x (~20%)</div>
+                    <div class="legend-item" style="background-color: #ffcc80;">3-4x (~50%)</div>
+                    <div class="legend-item" style="background-color: #ff9800; color: white;">5-6x (~80%)</div>
+                    <div class="legend-item" style="background-color: #ff3d00; color: white;">7x (100%)</div>
                 `;
             } else {
                 container.innerHTML = `
@@ -309,8 +309,8 @@
                         const count = frequencyMap[num] || 0;
                         ball.style.backgroundColor = getHeatmapColor(count, totalJogosAnalisados);
                         
-                        // Ajusta contraste do texto para cores muito escuras/vivas
-                        if(totalJogosAnalisados === 3 && count >= 2) ball.style.color = '#fff';
+                        // Ajusta contraste do texto
+                        if(totalJogosAnalisados === 7 && count >= 5) ball.style.color = '#fff';
                         if(totalJogosAnalisados === 20 && count > 10) ball.style.color = '#fff';
 
                         const freqSub = document.createElement('span');
@@ -467,8 +467,8 @@
                     const dezenasPassadas = await fetchLotofacilData(1);
                     initGrid(dezenasPassadas, false);
 
-                } else if (modo === 'frequencia-20' || modo === 'frequencia-3') {
-                    totalJogosAnalisados = modo === 'frequencia-3' ? 3 : 20;
+                } else if (modo === 'frequencia-20' || modo === 'frequencia-7') {
+                    totalJogosAnalisados = modo === 'frequencia-7' ? 7 : 20;
                     
                     document.getElementById('screen-title').textContent = `Mapa de Calor - Últimos ${totalJogosAnalisados} Jogos`;
                     document.getElementById('heatmap-legend').classList.remove('hidden');
